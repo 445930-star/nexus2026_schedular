@@ -9,4 +9,4 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "frame-ancestors 'self' https://YOUR-MOODLE-DOMAIN-HERE"
+    Content-Security-Policy = "frame-ancestors 'self' https://learngibs.org"
