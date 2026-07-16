@@ -199,7 +199,7 @@ const API = '/api/schedule';
 const daysContainer = document.getElementById('days');
 const statusPill = document.getElementById('statusPill');
 let lastData = null;
-let typingLocks = new Set(); // "day||time" currently being edited, skip re-render for that row
+let typingLocks = new Set(); // "day||time" of any input currently focused; pauses refresh while non-empty
 
 function slotKey(day, time){ return day + '||' + time; }
 
@@ -249,9 +249,6 @@ function render(data){
         clearBtn.onclick = () => clearSlot(dayEntry.day, slot.time);
         row.appendChild(clearBtn);
         nameTd.appendChild(row);
-      } else if (typingLocks.has(key)) {
-        // leave whatever is currently in the DOM alone (user is mid-type on a poll refresh)
-        return;
       } else {
         const form = document.createElement('form');
         form.className = 'name-form';
@@ -281,6 +278,12 @@ function render(data){
 }
 
 async function load(){
+  if (typingLocks.size > 0){
+    // Someone is actively typing a name right now — don't touch the DOM
+    // until they click away or submit, or their in-progress row could vanish.
+    statusPill.textContent = 'Paused while you type…';
+    return;
+  }
   try{
     const res = await fetch(API, { cache: 'no-store' });
     const data = await res.json();
